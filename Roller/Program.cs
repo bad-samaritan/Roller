@@ -17,7 +17,7 @@ namespace Roller
 			Console.WriteLine("Hello in Roller! I will choose proper wallpaper for you (in terms of your primary screen resolution)");
 
 			// Check param
-			var wallPath = "";
+			string wallPath;
 			if (args.Length == 1)
 			{
 				wallPath = args[0];
@@ -57,7 +57,7 @@ namespace Roller
 			}
 			else
 			{
-				// Soo maybe there is 1024x768 Neo?
+				// So maybe there is 1024x768 Neo?
 				theChosenOne = wallpaperCandidates.FirstOrDefault(x => (x.xRes == 1024 && x.yRes == 768));
 				if (!string.IsNullOrEmpty(theChosenOne.fullPath))
 				{

@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 namespace Roller
 {
 	/// <summary>
-	/// Module that can extract good file candidates to be wallpapers
+	/// Class that can extract wallpaper candidates
 	/// </summary>
 	class Hunter
 	{

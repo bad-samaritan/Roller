@@ -10,7 +10,7 @@ using Microsoft.Win32;
 namespace Roller
 {
 	/// <summary>
-	/// Module that can set wallpaper
+	/// Class that can set wallpaper
 	/// </summary>
 	public class Roller
 	{
@@ -21,7 +21,7 @@ namespace Roller
 		[DllImport("user32.dll", CharSet = CharSet.Auto)]
 		static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
 
-		public enum Style // int
+		public enum Style
 		{
 			Fill,
             Fit,
@@ -33,7 +33,6 @@ namespace Roller
 
 		public static bool PaintWall(string wallFilePath, Style style)
 		{
-			//string tempPath = Path.Combine(Path.GetTempPath(), "wallpaper.bmp");
 			var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string destWallFilePath = Path.Combine(appDataFolder + @"\Microsoft\Windows\Themes", "rollerWallpaper.bmp");
 			try
@@ -53,7 +52,7 @@ namespace Roller
 					key.SetValue(@"WallpaperStyle", 6.ToString());
 					key.SetValue(@"TileWallpaper", 0.ToString());
 				}
-				if (style == Style.Span)
+				if (style == Style.Span) // Windows 8 or newer only!
 				{
 					key.SetValue(@"WallpaperStyle", 22.ToString());
 					key.SetValue(@"TileWallpaper", 0.ToString());
@@ -73,26 +72,6 @@ namespace Roller
 					key.SetValue(@"WallpaperStyle", 0.ToString());
 					key.SetValue(@"TileWallpaper", 0.ToString());
 				}
-
-				#region Config found on StackOverflow 
-				/*
-				if (style == Style.Stretched)
-				{
-					key.SetValue(@"WallpaperStyle", 2.ToString());
-					key.SetValue(@"TileWallpaper", 0.ToString());
-				}
-				if (style == Style.Centered)
-				{
-					key.SetValue(@"WallpaperStyle", 1.ToString());
-					key.SetValue(@"TileWallpaper", 0.ToString());
-				}
-				if (style == Style.Tiled)
-				{
-					key.SetValue(@"WallpaperStyle", 1.ToString());
-					key.SetValue(@"TileWallpaper", 1.ToString());
-				}
-				*/
-				#endregion
 
 				SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, destWallFilePath,
 					SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
