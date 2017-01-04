@@ -14,7 +14,9 @@ namespace Roller
 	{
 		static int Main(string[] args)
 		{
-			Console.WriteLine("Hello in Roller! I will choose proper wallpaper for you (in terms of your primary screen resolution)");
+			SysCall.EnableDpiAwareness();
+
+			Console.WriteLine("Hello in Roller v0.2 I will choose proper wallpaper for you (in terms of your primary screen resolution)");
 
 			// Check param
 			string wallPath;

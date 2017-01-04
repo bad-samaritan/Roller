@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 using Microsoft.Win32;
 
 namespace Roller
@@ -14,13 +15,6 @@ namespace Roller
 	/// </summary>
 	public class Roller
 	{
-		const int SPI_SETDESKWALLPAPER = 20;
-		const int SPIF_UPDATEINIFILE = 0x01;
-		const int SPIF_SENDWININICHANGE = 0x02;
-
-		[DllImport("user32.dll", CharSet = CharSet.Auto)]
-		static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-
 		public enum Style
 		{
 			Fill,
@@ -33,13 +27,37 @@ namespace Roller
 
 		public static bool PaintWall(string wallFilePath, Style style)
 		{
-			var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string destWallFilePath = Path.Combine(appDataFolder + @"\Microsoft\Windows\Themes", "rollerWallpaper.bmp");
+			var primaryFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string destWallFilePath = Path.Combine(primaryFolder + @"\Microsoft\Windows\Themes", "rollerWallpaper.bmp");
+
+			Image img = null;
+			Bitmap imgTemp = null;
 			try
 			{
-				Image img = Image.FromFile(Path.GetFullPath(wallFilePath));
-				img.Save(destWallFilePath, System.Drawing.Imaging.ImageFormat.Bmp);
-
+				img = Image.FromFile(Path.GetFullPath(wallFilePath));
+				imgTemp = new Bitmap(img);
+				imgTemp.Save(destWallFilePath, System.Drawing.Imaging.ImageFormat.Bmp);
+				Console.WriteLine("Wallpaper saved to primary path: " + destWallFilePath);
+			}
+			catch (Exception e1)
+			{
+				Console.WriteLine(e1);
+				try
+				{
+					var secondaryFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+					destWallFilePath = Path.Combine(secondaryFolder, "rollerWallpaper.bmp");
+					imgTemp.Save(destWallFilePath, System.Drawing.Imaging.ImageFormat.Bmp);
+					Console.WriteLine("Wallpaper saved to secondary path: " + destWallFilePath);
+				}
+				catch (Exception e2)
+				{
+					Console.WriteLine(e2);
+					return false;
+				}
+			}
+			
+			try
+			{
 				RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
 
 				if (style == Style.Fill)
@@ -73,8 +91,7 @@ namespace Roller
 					key.SetValue(@"TileWallpaper", 0.ToString());
 				}
 
-				SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, destWallFilePath,
-					SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+				SysCall.SetSystemWallpaper(destWallFilePath);
 
 				return true;
 			}
@@ -83,6 +100,21 @@ namespace Roller
 				Console.WriteLine(e);
 				return false;
 			}
+		}
+
+		public static void PrintScreenInfo()
+		{
+			foreach (var scr in Screen.AllScreens)
+			{
+				Console.WriteLine();
+				Console.WriteLine("DeviceName: " + scr.DeviceName);
+				Console.WriteLine("BitsPerPixel: " + scr.BitsPerPixel);
+				Console.WriteLine("Bounds: " + scr.Bounds);
+			}
+
+			Graphics graphics = new System.Windows.Forms.Form().CreateGraphics();
+			Console.WriteLine();
+			Console.WriteLine("DPI X: " + graphics.DpiX + ", DPI Y: " + graphics.DpiY);
 		}
 	}
 }
